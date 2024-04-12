@@ -5,10 +5,15 @@ import crypto from 'crypto';
 import fs from 'fs';
 import { PDFExtract, type PDFExtractOptions } from 'pdf.js-extract';
 import OpenAI from 'openai';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
 app.use(fileUpload());
 app.use(express.static('public'));
+app.use(express.json());
+
 
 
 
@@ -16,7 +21,9 @@ const pdfExtract = new PDFExtract();
 const options: PDFExtractOptions = {}; // Options can be configured as needed
 
 app.post("/analyze", async (req: Request, res: Response) => {
+
   const { hash, mimetype } = req.body;
+  console.log(hash, mimetype, req.body);
 
   if (!hash) {
     return res.status(400).json({ msg: 'No hash provided' });
@@ -28,14 +35,16 @@ app.post("/analyze", async (req: Request, res: Response) => {
 
   const image_mimetype = ['image/jpeg', 'image/png', 'image/gif', 'image/bmp'];
   const pdf_mimetype = ['application/pdf'];
-  const text_mimetype = ['text/plain'];
+  const text_mimetype = ['text/plain', 'application/json', 'application/xml', 'application/csv'];
 
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env.OPEN_AI_API_KEY;
   if (!apiKey) {
     return res.status(400).json({ msg: 'No OpenAI API key provided' });
   }
 
   const client = new OpenAI({apiKey});
+
+  try {
 
   if (image_mimetype.includes(mimetype)) {
     const imagePath = path.join(__dirname, '../uploads', hash);
@@ -110,13 +119,18 @@ app.post("/analyze", async (req: Request, res: Response) => {
     return res.json({ analysis: choice });
   }
 
+  } catch (err) {
+    console.error('Error analyzing file:', err);
+    return res.status(500).json({ msg: 'Failed to analyze file' });
+  }
+
   return res.status(400).json({ msg: 'File type not supported for analysis' });
 });
 
 interface FileDataResult {
   originalname: string;
   hash: string;
-  minetype: string;
+  mimetype: string;
 }
 
 
@@ -129,7 +143,7 @@ function handleFiles(file: UploadedFile | UploadedFile[]): FileDataResult[] {
     const fileData: FileDataResult = {
       originalname: name,
       hash: hash,
-      minetype: mimetype,
+      mimetype: mimetype,
     };
 
     file.mv(path.join(__dirname, '../uploads', hash), (err) => {
@@ -155,7 +169,7 @@ app.post('/upload', (req: Request, res: Response) => {
   Object.entries(req.files).forEach(([key, file]) => {
     response.push(...handleFiles(file));
   });
-  res.send({response});
+  res.send({data: response});
 
 });
 

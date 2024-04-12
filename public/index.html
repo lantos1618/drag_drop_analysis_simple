@@ -80,13 +80,32 @@
                 body: formData
             });
             let data = await res.json();
-
-            for(let res of data) {
+            console.log(data.data);
+            for(let res of data.data) {
                 let fileItem = document.querySelector(`.file-item[data-originalname="${res.originalname}"]`);
                 // add hash value as a data attribute
                 fileItem.setAttribute('data-hash', res.hash);
+                // add mimetype value as a data attribute
+                fileItem.setAttribute('data-mimetype', res.mimetype);
+
                 
+                let analysis = await analyzeFile(res.hash, res.mimetype);
+                console.log(analysis);
             }
+
+
+            console.log(data);
+        }
+
+        async function analyzeFile(hash, mimetype) {
+            let res = await fetch('/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ hash, mimetype })
+            });
+            let data = await res.json();
             console.log(data);
         }
     </script>
