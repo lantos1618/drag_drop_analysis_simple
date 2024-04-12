@@ -147,7 +147,14 @@ async function analyzeImage(hash: any, client: OpenAI) {
       },
       {
         role: 'user',
-        content: `data:image/jpeg;base64,${base64Image}`
+        content: [
+          {
+            type: 'image_url',
+            image_url: {
+              url: `data:image/jpeg;base64,${base64Image}`
+            }
+          }
+        ]
       },
     ],
   });
