@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style type="text/tailwindcss">
+        .drop-zone {
+            @apply border-2 border-dashed border-gray-400 rounded-md p-4 text-center transition-colors duration-300 cursor-pointer;
+        }
+
+        .drop-zone.drag-over {
+            @apply border-blue-500 bg-blue-100;
+        }
+
+        .file-item {
+            @apply p-2 bg-gray-100 rounded-md mb-2 transition-transform duration-300;
+        }
+
+        .file-item:hover {
+            @apply transform scale-105;
+        }
+    </style>
+</head>
+<body class="bg-gray-200">
+    <div class="container mx-auto p-4">
+        <div id="drop-zone" class="drop-zone">
+            <p class="text-gray-500">Drop files here or click to select</p>
+        </div>
+        <div id="file-list" class="mt-4"></div>
+    </div>
+
+    <script>
+        let dropZone = document.getElementById('drop-zone');
+        let fileList = document.getElementById('file-list');
+
+        dropZone.ondragover = function (event) {
+            event.preventDefault();
+            dropZone.classList.add('drag-over');
+        };
+
+        dropZone.ondragleave = function () {
+            dropZone.classList.remove('drag-over');
+        };
+
+        dropZone.ondrop = function (event) {
+            event.preventDefault();
+            dropZone.classList.remove('drag-over');
+            handleFiles(event.dataTransfer.files);
+        };
+
+        dropZone.onclick = function () {
+            let fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.multiple = true;
+            fileInput.onchange = function (event) {
+                handleFiles(event.target.files);
+            };
+            fileInput.click();
+        };
+
+        async function handleFiles(files) {
+            let formData = new FormData();
+            for (let i = 0; i < files.length; i++) {
+                formData.append('files[]', files[i]); // Append each file under the same name 'files[]'
+
+                // List files
+                let fileItem = document.createElement('div');
+                fileItem.classList.add('file-item');
+                fileItem.textContent = files[i].name;
+                fileList.appendChild(fileItem);
+            }
+
+            // Upload all files together to /upload
+            let res = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+            let data = await res.json();
+            console.log(data);
+        }
+    </script>
+</body>
+</html>
