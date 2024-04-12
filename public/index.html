@@ -89,9 +89,19 @@
                 fileItem.setAttribute('data-mimetype', res.mimetype);
 
                 
+
+                let analysisDiv = document.createElement('div');
+                analysisDiv.textContent = 'Loading...';
+                fileItem.appendChild(analysisDiv);
+                // set it to loading
+
                 let analysis = await analyzeFile(res.hash, res.mimetype);
+                // add analysis to the fileItem
                 console.log(analysis);
-            }
+                analysisDiv.textContent = analysis;
+
+
+            }   
 
 
             console.log(data);
@@ -106,7 +116,7 @@
                 body: JSON.stringify({ hash, mimetype })
             });
             let data = await res.json();
-            console.log(data);
+            return data.analysis
         }
     </script>
 </body>
