@@ -68,6 +68,8 @@
                 // List files
                 let fileItem = document.createElement('div');
                 fileItem.classList.add('file-item');
+                // add originalname as a data attribute
+                fileItem.setAttribute('data-originalname', files[i].name);
                 fileItem.textContent = files[i].name;
                 fileList.appendChild(fileItem);
             }
@@ -78,6 +80,13 @@
                 body: formData
             });
             let data = await res.json();
+
+            for(let res of data) {
+                let fileItem = document.querySelector(`.file-item[data-originalname="${res.originalname}"]`);
+                // add hash value as a data attribute
+                fileItem.setAttribute('data-hash', res.hash);
+                
+            }
             console.log(data);
         }
     </script>
