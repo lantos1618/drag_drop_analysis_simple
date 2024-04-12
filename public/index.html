@@ -88,8 +88,6 @@
                 // add mimetype value as a data attribute
                 fileItem.setAttribute('data-mimetype', res.mimetype);
 
-                
-
                 let analysisDiv = document.createElement('div');
                 analysisDiv.textContent = 'Loading...';
                 fileItem.appendChild(analysisDiv);
@@ -99,11 +97,7 @@
                 // add analysis to the fileItem
                 console.log(analysis);
                 analysisDiv.textContent = analysis;
-
-
             }   
-
-
             console.log(data);
         }
 
